@@ -1,0 +1,38 @@
+# Render "Blueprint": creates the API and a PostgreSQL database together.
+# Replace the sync:false values in the Render dashboard after the first deploy.
+databases:
+  - name: quiet-battles-db
+    plan: free
+    databaseName: quiet_battles
+
+services:
+  - type: web
+    name: quiet-battles-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: quiet-battles-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false        # your Vercel address, e.g. https://quiet-battles.vercel.app
+      - key: SITE_URL
+        sync: false        # same as CLIENT_URL (used in sitemap.xml)
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

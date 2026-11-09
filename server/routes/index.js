@@ -1,0 +1,27 @@
+import { Router } from 'express';
+import auth from './auth.routes.js';
+import series from './series.routes.js';
+import chapters from './chapter.routes.js';
+import products from './product.routes.js';
+import cart from './cart.routes.js';
+import orders from './order.routes.js';
+import upload from './upload.routes.js';
+import settings from './settings.routes.js';
+import contact from './contact.routes.js';
+import newsletter from './newsletter.routes.js';
+import admin from './admin.routes.js';
+
+const router = Router();
+router.get('/health', (_req, res) => res.json({ success: true, message: 'Quiet Battles API is running' }));
+router.use('/auth', auth);
+router.use('/series', series);
+router.use('/chapters', chapters);
+router.use('/products', products);
+router.use('/cart', cart);
+router.use('/orders', orders);
+router.use('/upload', upload);
+router.use('/settings', settings);
+router.use('/contact', contact);
+router.use('/newsletter', newsletter);
+router.use('/admin', admin);
+export default router;
