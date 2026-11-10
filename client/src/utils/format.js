@@ -21,6 +21,26 @@ export function imgUrl(url) {
   return url.startsWith('/uploads') ? `${ORIGIN}${url}` : url;
 }
 
+export function imgSrcSet(url) {
+  if (import.meta.env.VITE_SUPABASE_IMAGE_TRANSFORMS !== 'true') return undefined;
+  const source = imgUrl(url);
+  try {
+    const parsed = new URL(source);
+    if (!parsed.pathname.includes('/storage/v1/object/public/')) return undefined;
+    parsed.pathname = parsed.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+    return [320, 640, 960, 1280]
+      .map((width) => {
+        const variant = new URL(parsed);
+        variant.searchParams.set('width', String(width));
+        variant.searchParams.set('quality', '75');
+        return `${variant.toString()} ${width}w`;
+      })
+      .join(', ');
+  } catch {
+    return undefined;
+  }
+}
+
 export const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 

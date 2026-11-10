@@ -4,6 +4,7 @@ dist/
 .env.local
 *.log
 .DS_Store
+.netlify/
 server/data/
 server/uploads/*
 !server/uploads/.gitkeep

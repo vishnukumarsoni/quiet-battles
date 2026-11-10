@@ -4,7 +4,7 @@ import { createApp } from './app.js';
 
 async function start() {
   assertRequiredEnv();
-  await connectDb();
+  await connectDb({ sync: !env.isProd });
   const app = createApp();
   app.listen(env.port, () => {
     const db = env.databaseUrl ? 'PostgreSQL' : 'SQLite';

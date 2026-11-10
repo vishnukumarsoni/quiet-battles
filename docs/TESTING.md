@@ -1,8 +1,8 @@
 # Testing report
 
-Latest local verification: 9 Nov 2026 on Windows with Node 24.15.0. The backend integration suite and root frontend build were executed. Chromium checks and responsive checks below are from 8 Nov 2026 and were not repeated during this verification. Items that were **not** tested are listed at the end.
+Latest local verification: 10 Nov 2026 on Windows with Node 24.15.0. The backend suite, Netlify production build/function bundling, frontend build, and dependency audits were executed. Chromium checks and responsive checks below are from 8 Nov 2026 and were not repeated. Items that were **not** tested are listed at the end.
 
-## 1. Backend integration tests – 60 / 60 pass
+## 1. Backend integration tests – 61 / 61 pass
 
 `npm test` from the repository root (or `npm --prefix server test`) boots the real Express app on a throw-away database and calls it over HTTP.  
 The identical suite also passes on **PostgreSQL 18**: `TEST_DATABASE_URL=postgres://… npm test`.
@@ -14,7 +14,7 @@ The identical suite also passes on **PostgreSQL 18**: `TEST_DATABASE_URL=postgre
 | CRUD + relationships (15) | product / series / chapter create, read, update, delete; invalid data rejected; duplicate slug gets `-2`; mass-assignment ignored; duplicate series number and duplicate chapter number → 409; chapter with missing series or product → 422; chapter response contains series, product, next/previous; drafts hidden from public but visible to admin; unpublished series hides its chapters; series with chapters cannot be deleted; deleting a product clears the link; search / filter / sort / pagination; SQL-injection strings in `q` and `sort`; 404 for missing records |
 | Cart and orders (12) | server-side re-pricing; size / stock problems reported; invalid cart input; guest server cart add / update / remove; order form validation; stock reduced after an order; browser-sent prices ignored; overselling refused; **two simultaneous orders for the last unit → one 201, one 409**; order keeps the old price after the product changes; draft products cannot be bought; admin list / search / status change; cancelling restocks exactly once; cancelled orders cannot be reopened; dashboard statistics |
 | Image upload (9) | real PNG accepted and served; PDF rejected; fake image (wrong file signature) rejected; > 5 MB rejected; missing file rejected; library listing; delete blocked while in use, `?force=true` removes the file and the references; replace rewrites URLs everywhere |
-| Settings and misc (8) | settings read / write with field whitelist; contact form; newsletter de-duplication; password change rules; JSON 404 and bad-JSON handling; Helmet headers and no `X-Powered-By`; CORS allow / block; sitemap |
+| Settings and misc (9) | Netlify function login and cookie round-trip; settings read / write with field whitelist; contact form; newsletter de-duplication; password change rules; JSON 404 and bad-JSON handling; Helmet headers and no `X-Powered-By`; CORS allow / block; sitemap |
 
 ## 2. Browser end-to-end – 42 / 42 checks pass (Chromium, desktop 1440 px)
 
@@ -37,7 +37,7 @@ Run through the real UI against the real API:
 - 10th wrong login within 15 minutes returns 429
 - Rate limiting, CORS, Helmet and upload rules covered by the automated tests above
 - Login returns no JWT in its JSON response; password changes invalidate existing sessions. Both are covered by API tests.
-- On 9 Nov 2026, `npm audit` reported zero vulnerabilities for the client and server dependency trees. The server keeps Sequelize 6 and uses patched transitive `uuid` and `minimatch` versions via npm overrides; rerun audits after dependency changes.
+- On 10 Nov 2026, `npm audit` reported zero vulnerabilities for the client and server dependency trees. The server keeps Sequelize 6 and uses patched transitive `uuid` and `minimatch` versions via npm overrides; rerun audits after dependency changes.
 - This is an automated dependency and application test pass, not a penetration test or a guarantee that the application is vulnerability-free.
 
 ## 5. Bugs found and fixed while testing
@@ -53,7 +53,7 @@ Run through the real UI against the real API:
 
 ## 6. NOT tested (be honest about these in the interview)
 
-- Deployment itself (Render / Vercel) and real **Cloudinary** uploads: no credentials here. The local-disk path is tested; the Cloudinary code path follows the SDK docs but has not run.
+- Live Netlify deployment and real Supabase Storage/Cloudinary uploads were not tested. The Netlify production build and function bundle completed locally; the local-disk upload path is covered by API tests.
 - Browsers other than Chromium (Safari, Firefox), real phones, tablets (only emulated sizes)
 - Screen-reader testing and a Lighthouse score. Semantic HTML, alt text, labels, focus styles, skip link and reduced-motion support are in place but not audited by a tool
 - Email sending (not implemented) and real payments (out of scope for this assessment)

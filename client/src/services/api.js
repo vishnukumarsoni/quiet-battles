@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Empty in development (Vite proxies /api). In production it is the Render URL.
+// Empty when the host rewrites /api to the function on this same site.
 const ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 export const api = axios.create({

@@ -1,12 +1,17 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { createClient } from '@supabase/supabase-js';
 import { env } from '../config/env.js';
 import { cloudinary } from '../config/cloudinary.js';
 
-// Saves images to Cloudinary when its keys exist, otherwise to server/uploads.
-// The rest of the app only calls these functions and never cares which one is used.
-export const storageName = () => (env.cloudinary.enabled ? 'cloudinary' : 'local');
+const supabase = env.supabase.enabled
+  ? createClient(env.supabase.url, env.supabase.secretKey, {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    })
+  : null;
+
+export const storageName = () => (supabase ? 'supabase' : env.cloudinary.enabled ? 'cloudinary' : 'local');
 
 function uploadToCloudinary(buffer, publicId) {
   return new Promise((resolve, reject) => {
@@ -18,6 +23,17 @@ function uploadToCloudinary(buffer, publicId) {
 }
 
 export async function saveImage({ buffer, ext }) {
+  if (supabase) {
+    const publicId = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from(env.supabase.bucket).upload(publicId, buffer, {
+      contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+      cacheControl: '31536000',
+      upsert: false,
+    });
+    if (error) throw error;
+    const { data } = supabase.storage.from(env.supabase.bucket).getPublicUrl(publicId);
+    return { url: data.publicUrl, publicId, storage: 'supabase' };
+  }
   if (env.cloudinary.enabled) {
     const result = await uploadToCloudinary(buffer);
     return { url: result.secure_url, publicId: result.public_id, storage: 'cloudinary' };
@@ -29,6 +45,12 @@ export async function saveImage({ buffer, ext }) {
 }
 
 export async function deleteImage(media) {
+  if (media.storage === 'supabase') {
+    if (!supabase) throw new Error('Supabase Storage is not configured');
+    const { error } = await supabase.storage.from(env.supabase.bucket).remove([media.publicId]);
+    if (error) throw error;
+    return;
+  }
   if (media.storage === 'cloudinary') {
     if (env.cloudinary.enabled) await cloudinary.uploader.destroy(media.publicId, { invalidate: true });
     return;

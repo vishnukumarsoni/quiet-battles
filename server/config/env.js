@@ -22,6 +22,8 @@ export const env = {
   nodeEnv,
   isProd: nodeEnv === 'production',
   isTest: nodeEnv === 'test',
+  isVercel: process.env.VERCEL === '1',
+  isNetlify: process.env.NETLIFY === 'true' || process.env.NETLIFY === '1',
   port: Number(process.env.PORT) || 5000,
 
   databaseUrl: process.env.DATABASE_URL || '',
@@ -40,6 +42,11 @@ export const env = {
     apiKey: process.env.CLOUDINARY_API_KEY || '',
     apiSecret: process.env.CLOUDINARY_API_SECRET || '',
   },
+  supabase: {
+    url: process.env.SUPABASE_URL || '',
+    secretKey: process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    bucket: process.env.SUPABASE_STORAGE_BUCKET || 'product-media',
+  },
 
   admin: {
     name: process.env.ADMIN_NAME || 'Store Admin',
@@ -51,6 +58,7 @@ export const env = {
 env.cloudinary.enabled = Boolean(
   env.cloudinary.cloudName && env.cloudinary.apiKey && env.cloudinary.apiSecret
 );
+env.supabase.enabled = Boolean(env.supabase.url && env.supabase.secretKey);
 
 // Called when the API starts. Refuses to run with a missing or weak JWT secret.
 export function assertRequiredEnv() {
@@ -60,5 +68,11 @@ export function assertRequiredEnv() {
         'Copy server/.env.example to server/.env and set a long random value, e.g.\n' +
         '  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"'
     );
+  }
+  if (env.isProd && !env.databaseUrl) {
+    throw new Error('DATABASE_URL is required in production. Use a pooled PostgreSQL URL for serverless hosting.');
+  }
+  if (env.isProd && !env.cloudinary.enabled && !env.supabase.enabled) {
+    throw new Error('Production requires durable image storage. Configure Supabase Storage or Cloudinary.');
   }
 }

@@ -14,7 +14,7 @@ import ApiError from './utils/ApiError.js';
 export function createApp() {
   const app = express();
 
-  // Behind Render/Vercel the real client IP comes from a proxy header (needed for rate limiting).
+  // Behind hosted proxies the real client IP comes from a forwarded header (needed for rate limiting).
   if (env.isProd) app.set('trust proxy', 1);
 
   // Helmet adds secure HTTP headers. Cross-origin image loading is allowed so the
@@ -36,7 +36,9 @@ export function createApp() {
   app.use(express.json({ limit: '200kb' }));
   app.use(cookieParser());
 
-  app.use('/uploads', express.static(env.uploadDir, { index: false, maxAge: '7d' }));
+  if (!env.isProd) {
+    app.use('/uploads', express.static(env.uploadDir, { index: false, maxAge: '1y', immutable: true }));
+  }
   app.get('/sitemap.xml', sitemap);
 
   app.use('/api', apiLimiter, routes);

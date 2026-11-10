@@ -15,7 +15,7 @@ process.env.CLIENT_URL = 'http://localhost:5173';
 // Default: throw-away SQLite file. To run the same suite on PostgreSQL:
 //   TEST_DATABASE_URL=postgres://user:pass@localhost:5432/qb_test npm test
 if (process.env.TEST_DATABASE_URL) process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-else delete process.env.DATABASE_URL;
+else process.env.DATABASE_URL = '';
 delete process.env.CLOUDINARY_CLOUD_NAME;
 
 const { connectDb, sequelize } = await import('../config/db.js');
@@ -419,6 +419,26 @@ describe('image upload', () => {
 });
 
 describe('settings, forms, security and misc', () => {
+  it('serves the API through the Netlify function adapter', async () => {
+    const { default: apiFunction } = await import('../netlify/functions/api.mjs');
+    const login = await apiFunction(new Request('https://quiet-battles.netlify.app/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(ADMIN),
+    }), {});
+    assert.equal(login.status, 200);
+    assert.match(login.headers.get('set-cookie'), /HttpOnly/i);
+    const loginBody = await login.json();
+    assert.equal(Object.hasOwn(loginBody.data, 'token'), false);
+
+    const cookie = login.headers.get('set-cookie').split(';', 1)[0];
+    const session = await apiFunction(new Request('https://quiet-battles.netlify.app/api/auth/me', {
+      headers: { cookie },
+    }), {});
+    assert.equal(session.status, 200);
+    assert.equal((await session.json()).data.user.email, ADMIN.email);
+  });
+
   it('settings are public to read and admin-only to change', async () => {
     assert.equal((await call('GET', '/settings')).body.data.siteName, 'QUIET BATTLES™');
     const r = await call('PUT', '/settings', { token: adminToken, body: { tagline: 'New tagline', hacker: 'x' } });

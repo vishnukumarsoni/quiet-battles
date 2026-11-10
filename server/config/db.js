@@ -4,15 +4,29 @@ import { Sequelize } from 'sequelize';
 import { env } from './env.js';
 
 // One codebase, two databases:
-//   - DATABASE_URL set  -> PostgreSQL (production, Render / Neon / Supabase)
+//   - DATABASE_URL set  -> PostgreSQL (production, Neon / Supabase)
 //   - otherwise         -> a local SQLite file (zero setup for development)
 let sequelize;
+let connectionPromise;
 
 if (env.databaseUrl) {
-  const useSsl = env.isProd && process.env.DB_SSL !== 'false';
-  sequelize = new Sequelize(env.databaseUrl, {
+  const connectionUrl = new URL(env.databaseUrl);
+  if (connectionUrl.searchParams.get('sslmode') === 'require') {
+    connectionUrl.searchParams.set('sslmode', 'verify-full');
+  }
+  const useSsl = (env.isProd || Boolean(env.supabase.url)) && process.env.DB_SSL !== 'false';
+  sequelize = new Sequelize(connectionUrl.toString(), {
     logging: false,
-    dialectOptions: useSsl ? { ssl: { require: true, rejectUnauthorized: false } } : {},
+    dialectOptions: useSsl
+      ? { ssl: { require: true, rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } }
+      : {},
+    pool: {
+      max: env.isVercel || env.isNetlify ? 1 : 5,
+      min: 0,
+      acquire: 20000,
+      idle: 10000,
+      evict: 1000,
+    },
   });
 } else {
   if (env.sqlitePath !== ':memory:') {
@@ -31,9 +45,16 @@ if (env.databaseUrl) {
 
 export { sequelize };
 
-export async function connectDb() {
-  await sequelize.authenticate();
-  // Creates any missing tables. For real schema changes you would add migrations.
-  await sequelize.sync();
-  return sequelize;
+export function connectDb({ sync = !env.isProd } = {}) {
+  if (!connectionPromise) {
+    connectionPromise = (async () => {
+      await sequelize.authenticate();
+      if (sync) await sequelize.sync();
+      return sequelize;
+    })().catch((error) => {
+      connectionPromise = undefined;
+      throw error;
+    });
+  }
+  return connectionPromise;
 }

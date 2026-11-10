@@ -1,18 +1,21 @@
 import { useState } from 'react';
-import { imgUrl } from '../utils/format';
+import { imgSrcSet, imgUrl } from '../utils/format';
 
 // An <img> that is lazy-loaded, has a grey block while loading, and fades in.
 // Pass eager for the first big image on a page (so it is not delayed).
-export default function Img({ src, alt = '', className = '', eager = false, ratio, ...rest }) {
+export default function Img({ src, alt = '', className = '', eager = false, ratio, sizes, ...rest }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const url = imgUrl(src);
+  const srcSet = imgSrcSet(src);
 
   return (
     <div className={`relative overflow-hidden bg-coal ${className}`} style={ratio ? { aspectRatio: ratio } : undefined}>
       {url && !failed ? (
         <img
           src={url}
+          srcSet={srcSet}
+          sizes={srcSet ? sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw' : sizes}
           alt={alt}
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"

@@ -5,26 +5,26 @@ A short guide you can use to explain the whole project in an interview.
 ## 1. The big picture
 
 ```
-  Browser (React + Vite SPA)                    Express API (Node 18+)                SQL database
- ┌───────────────────────────┐   JSON / HTTPS  ┌─────────────────────────────┐      ┌──────────────────┐
- │ Public site  /, /archive… │ ──────────────▶ │ routes → validators → auth  │ ───▶ │ SQLite  (dev)    │
- │ Cart  (localStorage)      │ ◀────────────── │ → controllers → services    │ ◀─── │ PostgreSQL (prod)│
- │ Admin panel  /admin/*     │  httpOnly cookie│ → Sequelize models          │      └──────────────────┘
- └───────────────────────────┘                 │ uploads → local disk or     │
-                                               │ Cloudinary                  │
-                                               └─────────────────────────────┘
+  Browser (Netlify CDN)                  Express API (Netlify Function)      Neon / Supabase
+ ┌────────────────────────┐   same-site  ┌─────────────────────────────┐   ┌─────────────────────┐
+ │ React + Vite static SPA│ ── /api/* ─▶ │ routes → controllers        │──▶│ Pooled PostgreSQL   │
+ │ hashed assets cached   │              │ → Sequelize models/services │   │ Supabase Storage    │
+ │ httpOnly admin cookie  │              └─────────────────────────────┘   └─────────────────────┘
+ └────────────────────────┘
 ```
 
 - `client/` and `server/` are two separate apps with their own `package.json`.
 - In development Vite proxies `/api` and `/uploads` to the server, so the browser only talks to one origin.
-- In production the same idea is kept: Vercel rewrites `/api/*` to the Render server (see `docs/DEPLOYMENT.md`). That keeps cookies first-party and avoids most CORS trouble.
+- In production Netlify serves static files from its CDN and routes `/api/*` to a same-origin Express function, preserving the admin cookie.
+- The Netlify function uses one Sequelize connection per warm instance. Schema sync runs during explicit seeding, not on every production cold start.
+- Public images use Supabase Storage or Cloudinary with immutable caching; responsive transformed `srcset` is optional and requires Supabase image transformations.
 
 ## 2. Why these choices
 
 | Decision | Reason |
 |---|---|
 | **SQL (Sequelize) instead of MongoDB** | The data is relational: series → chapters → product, orders → order lines. Foreign keys, unique constraints and transactions come for free. |
-| **SQLite in dev, PostgreSQL in production** | Zero setup locally; the same models run on both. The test suite passes on both. |
+| **SQLite in dev, pooled Neon PostgreSQL in production** | Zero setup locally; Netlify serverless functions use one application-side connection per warm instance. |
 | **JWT in an httpOnly cookie** | JavaScript cannot directly read the cookie. Login never returns the JWT in JSON; API clients can use a cookie jar. A credential-derived HMAC marker invalidates existing sessions after a password change. This reduces token exposure but does not make XSS harmless. |
 | **Cart in localStorage, re-priced by the server** | Guests need no account. At checkout the server ignores any price the browser sends and uses the database price. |
 | **Orders store a snapshot of each line** | Editing or deleting a product later never changes old orders. |
@@ -65,9 +65,9 @@ routes/        URL → which middleware + controller   (one file per resource)
 middleware/    auth (JWT, roles), validators (express-validator), upload (Multer + file-signature check),
                rate limiters, error handler
 controllers/   read the request, call models/services, send { success, data, meta }
-services/      business rules: cart pricing, order placement + stock, image storage, media usage
+services/      business rules: cart pricing, order placement + stock, local/Supabase/Cloudinary image storage, media usage
 models/        Sequelize models + associations (models/index.js)
-config/        env.js (reads .env), db.js (SQLite or PostgreSQL), cloudinary.js
+config/        env.js (reads .env), db.js (SQLite or pooled PostgreSQL), cloudinary.js
 utils/         ApiError, asyncHandler, slugify, pagination/search helpers
 seed/          demo content + seed script
 tests/         integration tests (node:test)
