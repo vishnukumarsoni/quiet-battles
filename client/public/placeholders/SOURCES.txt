@@ -1,0 +1,45 @@
+Sample stock imagery
+====================
+
+These images are provided for demonstration purposes and are not photographs of
+QUIET BATTLES products. Replace them with brand-owned product photography before
+launch. Pexels photos are used under the Pexels license:
+https://www.pexels.com/license/
+Unsplash photos are used under the Unsplash License:
+https://unsplash.com/license
+
+Pexels photo pages and files:
+36624450  https://www.pexels.com/photo/stylish-monochrome-fashion-portrait-from-behind-36624450/
+          hero.jpg, ch3-cover.jpg
+5840463   https://www.pexels.com/photo/men-wearing-plain-hoodies-5840463/
+          ch2-cover.jpg, p2-1.jpg, p4-2.jpg
+18257675  https://www.pexels.com/photo/white-t-shirt-hanging-on-a-hanger-18257675/
+          p1-3.jpg, p5-3.jpg
+9558583   https://www.pexels.com/photo/woman-in-black-crew-neck-t-shirt-9558583/
+          ch1-a.jpg, p1-1.jpg
+9558595   https://www.pexels.com/photo/woman-in-black-crew-neck-t-shirt-and-blue-denim-jeans-9558595/
+          p1-2.jpg
+8217416   https://www.pexels.com/photo/a-bearded-man-wearing-a-white-hoodie-8217416/
+          ch2-a.jpg, p2-2.jpg
+18864127  https://www.pexels.com/photo/man-in-hat-and-check-overshirt-18864127/
+          ch3-a.jpg, p3-1.jpg
+6616673   https://www.pexels.com/photo/two-men-posing-in-stylish-shirts-6616673/
+          series-01.jpg, ch3-b.jpg, p3-2.jpg
+6616649   https://www.pexels.com/photo/men-posing-in-studio-6616649/
+          ch5-a.jpg, p3-3.jpg, p4-1.jpg
+17484795  https://www.pexels.com/photo/men-wearing-casual-outfits-on-a-street-17484795/
+          about.jpg, ch5-cover.jpg
+10917971  https://www.pexels.com/photo/a-man-carrying-a-backpack-10917971/
+          story.jpg, ch1-cover.jpg, ch5-b.jpg, p5-2.jpg
+20837189  https://www.pexels.com/photo/woman-wearing-trench-coat-and-dress-in-black-and-white-20837189/
+          ch4-cover.jpg
+8581033   https://www.pexels.com/photo/hanging-clothes-on-a-clothinig-rack-8581033/
+          ch4-a.jpg
+
+Unsplash images:
+photo-1521572163474-6864f9cf17ab
+https://images.unsplash.com/photo-1521572163474-6864f9cf17ab
+          ch1-b.jpg, p5-1.jpg
+photo-1556821840-3a63f95609a7
+https://images.unsplash.com/photo-1556821840-3a63f95609a7
+          ch2-b.jpg, ch4-b.jpg, p2-3.jpg, p4-3.jpg

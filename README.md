@@ -7,7 +7,7 @@
 - **Backend:** Node + Express REST API, JWT login, role-based access, validation, rate limiting, image uploads
 - **Database:** SQLite locally; pooled Neon PostgreSQL in production
 
-> Checkout is a **demonstration**. Orders are saved but no payment is taken. The pictures are generated placeholders: replace them from the admin panel.
+> Checkout is a **demonstration**. Orders are saved but no payment is taken. The sample photography is free stock imagery; replace it with brand-owned product photos before launch. Image source details are in [client/public/placeholders/SOURCES.txt](client/public/placeholders/SOURCES.txt).
 
 ## Tech stack
 
@@ -74,7 +74,7 @@ Root-level checks are available with `npm run build` and `npm test`. The root sc
 ```
 quiet-battles/
 ├── client/                 React app
-│   ├── public/             robots.txt, placeholder images
+│   ├── public/             robots.txt, sample photography
 │   └── src/  pages · components · layouts · admin · context · hooks · services · utils
 ├── server/                 Express API
 │   ├── config/  controllers/  middleware/  models/  routes/  services/  utils/

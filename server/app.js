@@ -25,8 +25,13 @@ export function createApp() {
     cors({
       credentials: true,
       origin(origin, cb) {
-        // No Origin header = curl / Postman / server-to-server, which is fine.
-        if (!origin || env.clientOrigins.includes(origin)) return cb(null, true);
+        // No Origin header = curl / Postman / server-to-server / same-origin proxy, which is fine.
+        if (!origin) return cb(null, true);
+        if (env.clientOrigins.includes(origin)) return cb(null, true);
+        // In development, allow any localhost, 127.0.0.1 or local network port (e.g. 5173, 5174, 3000)
+        if (!env.isProd && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(origin)) {
+          return cb(null, true);
+        }
         return cb(new ApiError(403, 'This origin is not allowed'));
       },
     })

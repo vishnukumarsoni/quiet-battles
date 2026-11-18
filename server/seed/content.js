@@ -1,4 +1,4 @@
-// Demo content for the assessment. Images are generated placeholders in client/public/placeholders.
+// Demo content for the assessment. Sample stock photos in client/public/placeholders can be replaced in the admin panel.
 // Everything here can be edited or replaced from the admin panel afterwards.
 const img = (name) => `/placeholders/${name}.jpg`;
 const SIZES = ['S', 'M', 'L', 'XL'];
