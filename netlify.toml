@@ -5,7 +5,7 @@ publish = "client/dist"
 [build.environment]
 # Skip non-secret metadata values and the ignored local database only.
 # Credential variables such as JWT_SECRET and ADMIN_PASSWORD remain scanned.
-SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,CLIENT_URL,PORT"
+SECRETS_SCAN_OMIT_KEYS = "NODE_ENV,CLIENT_URL,SITE_URL,PORT,ADMIN_NAME,COOKIE_SAMESITE,JWT_EXPIRES_IN,DB_SSL,DB_SSL_REJECT_UNAUTHORIZED,SUPABASE_STORAGE_BUCKET,DEBUG_ERRORS"
 SECRETS_SCAN_OMIT_PATHS = "server/data/quiet-battles.sqlite"
 
 [functions]
