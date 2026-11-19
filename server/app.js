@@ -27,12 +27,35 @@ export function createApp() {
       origin(origin, cb) {
         // No Origin header = curl / Postman / server-to-server / same-origin proxy, which is fine.
         if (!origin) return cb(null, true);
-        if (env.clientOrigins.includes(origin)) return cb(null, true);
+
+        // Explicitly configured origins
+        if (env.clientOrigins.includes(origin) || env.clientOrigins.includes('*')) {
+          return cb(null, true);
+        }
+
         // In development, allow any localhost, 127.0.0.1 or local network port (e.g. 5173, 5174, 3000)
         if (!env.isProd && /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(origin)) {
           return cb(null, true);
         }
-        return cb(new ApiError(403, 'This origin is not allowed'));
+
+        // On production cloud deployments, permit standard hostnames (Netlify, Vercel, Render)
+        try {
+          const parsed = new URL(origin);
+          const hostname = parsed.hostname;
+          if (
+            hostname.endsWith('.netlify.app') ||
+            hostname.endsWith('.vercel.app') ||
+            hostname.endsWith('.onrender.com') ||
+            hostname === 'localhost' ||
+            hostname === '127.0.0.1'
+          ) {
+            return cb(null, true);
+          }
+        } catch {
+          // ignore parsing error
+        }
+
+        return cb(new ApiError(403, `This origin is not allowed: ${origin}`));
       },
     })
   );
