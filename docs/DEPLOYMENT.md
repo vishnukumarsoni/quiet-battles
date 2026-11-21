@@ -64,6 +64,7 @@ Vercel/Render/local disk files are not present in Netlify. Re-upload any existin
 | `DATABASE_URL is required in production` | Set the pooled Neon URL in Netlify's Functions environment and redeploy. |
 | Production image storage configuration error | Configure Supabase Storage secrets or all Cloudinary credentials; local disk is not persistent on Netlify. |
 | PostgreSQL warns that `sslmode=require` is changing | The server normalizes it to `verify-full` so TLS certificate and hostname verification remain enabled. |
+| Netlify secret scan flags `SITE_URL` or `ADMIN_NAME` in source | These are public metadata values, not credentials. The checked-in `netlify.toml` excludes only these keys from scanning; keep actual credentials such as `DATABASE_URL`, `JWT_SECRET`, and storage secrets scanned. |
 
 ## Optional alternative: Supabase + Vercel
 
