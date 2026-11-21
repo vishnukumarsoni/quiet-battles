@@ -2,7 +2,7 @@ import 'dotenv/config';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const configDir = path.dirname(fileURLToPath(import.meta.url));
 const nodeEnv = process.env.NODE_ENV || 'development';
 const clientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
@@ -37,7 +37,7 @@ export const env = {
   port: Number(process.env.PORT) || 5000,
 
   databaseUrl: process.env.DATABASE_URL || '',
-  sqlitePath: process.env.SQLITE_PATH || path.join(__dirname, '..', 'data', 'quiet-battles.sqlite'),
+  sqlitePath: process.env.SQLITE_PATH || path.join(configDir, '..', 'data', 'quiet-battles.sqlite'),
 
   jwtSecret: process.env.JWT_SECRET || '',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
@@ -46,7 +46,7 @@ export const env = {
   clientOrigins,
   siteUrl: (process.env.SITE_URL || clientOrigins[0]).replace(/\/$/, ''),
 
-  uploadDir: process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads'),
+  uploadDir: process.env.UPLOAD_DIR || path.join(configDir, '..', 'uploads'),
   cloudinary: {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
     apiKey: process.env.CLOUDINARY_API_KEY || '',
