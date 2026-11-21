@@ -22,6 +22,7 @@ export default function Shop() {
   const q = params.get('q') || '';
   const inStock = params.get('inStock') === 'true';
   const page = Number(params.get('page')) || 1;
+  const pageSize = 16;
 
   // the search box types freely; the URL (and the API call) only updates after a short pause
   const [text, setText] = useState(q);
@@ -41,11 +42,14 @@ export default function Shop() {
   }
 
   const { data, meta, loading, error, reload } = useFetch(
-    () => productsApi.list({ category: category || undefined, sort, q: q || undefined, inStock: inStock || undefined, page, limit: 12 }),
+    () => productsApi.list({ category: category || undefined, sort, q: q || undefined, inStock: inStock || undefined, page, limit: pageSize }),
     [category, sort, q, inStock, page]
   );
 
+  const products = data || [];
   const categories = meta?.categories || [];
+  const incompleteRowSize = products.length % 4;
+  const incompleteRowStart = products.length - incompleteRowSize;
   const chip = (active) => `border px-4 py-2 text-[11px] uppercase tracking-wider2 transition-colors ${active ? 'border-bone bg-bone text-ink' : 'border-graphite text-bone/70 hover:border-ash'}`;
 
   return (
@@ -84,14 +88,22 @@ export default function Shop() {
 
       {loading && <GridSkeleton count={8} />}
       {error && <ErrorState error={error} onRetry={reload} />}
-      {!loading && !error && data.length === 0 && (
+      {!loading && !error && products.length === 0 && (
         <EmptyState title="Nothing matches" text="Try removing a filter or searching for something else." action={{ to: '/shop', label: 'Clear filters' }} />
       )}
-      {!loading && !error && data.length > 0 && (
+      {!loading && !error && products.length > 0 && (
         <>
           <p className="mb-6 text-xs text-ash" aria-live="polite">{meta.total} {meta.total === 1 ? 'piece' : 'pieces'}</p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-12 lg:grid-cols-4">
-            {data.map((p) => <ProductCard key={p.id} product={p} />)}
+            {products.map((p, index) => {
+              const isInLastRow = index >= incompleteRowStart;
+              const fillClass = isInLastRow && incompleteRowSize === 1
+                ? 'col-span-2 lg:col-span-4'
+                : isInLastRow && incompleteRowSize === 2
+                  ? 'lg:col-span-2'
+                  : '';
+              return <ProductCard key={p.id} product={p} className={fillClass} />;
+            })}
           </div>
           {meta.totalPages > 1 && (
             <nav className="mt-16 flex items-center justify-center gap-6 text-[11px] uppercase tracking-wider2" aria-label="Pagination">
