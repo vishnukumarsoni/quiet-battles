@@ -63,6 +63,7 @@ Vercel/Render/local disk files are not present in Netlify. Re-upload any existin
 | `getaddrinfo ENOTFOUND <Neon host>` locally | The machine's DNS resolver cannot resolve Neon. Use an approved resolver that can; do not pin a temporary Neon IP. Hosted Netlify Functions use their own DNS path. |
 | `DATABASE_URL is required in production` | Set the pooled Neon URL in Netlify's Functions environment and redeploy. |
 | Production image storage configuration error | Configure Supabase Storage secrets or all Cloudinary credentials; local disk is not persistent on Netlify. |
+| Netlify function returns `Please install pg package manually` | Sequelize loads PostgreSQL drivers dynamically. Keep `pg` and `pg-hstore` in server dependencies and in the function's `external_node_modules` configuration, then redeploy. |
 | PostgreSQL warns that `sslmode=require` is changing | The server normalizes it to `verify-full` so TLS certificate and hostname verification remain enabled. |
 | Netlify secret scan flags `SITE_URL` or `ADMIN_NAME` in source | These are public metadata values, not credentials. The checked-in `netlify.toml` excludes only these keys from scanning; keep actual credentials such as `DATABASE_URL`, `JWT_SECRET`, and storage secrets scanned. |
 
