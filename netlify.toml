@@ -11,8 +11,6 @@ SECRETS_SCAN_OMIT_PATHS = "server/data/quiet-battles.sqlite"
 [functions]
 directory = "server/netlify/functions"
 node_bundler = "esbuild"
-# Sequelize loads these PostgreSQL packages dynamically at runtime.
-external_node_modules = ["pg", "pg-hstore"]
 
 [[headers]]
 for = "/assets/*"

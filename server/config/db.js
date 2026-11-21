@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import pg from 'pg';
 import { Sequelize } from 'sequelize';
 import { env } from './env.js';
 
@@ -16,6 +17,7 @@ if (env.databaseUrl) {
   }
   const useSsl = (env.isProd || Boolean(env.supabase.url)) && process.env.DB_SSL !== 'false';
   sequelize = new Sequelize(connectionUrl.toString(), {
+    dialectModule: pg,
     logging: false,
     dialectOptions: useSsl
       ? { ssl: { require: true, rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } }
